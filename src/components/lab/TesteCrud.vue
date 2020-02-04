@@ -6,8 +6,6 @@
         @clicou-salvar="salvar"
         @clicou-cancelar="cancelar"
         @clicou-novo="novo">
-
-
         <template slot="detalhe">
             <div v-if="entidadeAtual">
                 <h1>formulário</h1>
@@ -23,6 +21,7 @@
 
 <script>
 import crud from '@/components/ui/CRUD'
+import rotas from '@/RotasServico.js'
 
 export default {
     components: {
@@ -32,8 +31,20 @@ export default {
         return {
             cabecalhos: [
                 {
+                    type: 'filter',
                     text : 'Nome',
                     value : 'nome'
+                },
+                {
+                    text : 'CPF',
+                    value : 'login'
+                },
+                {
+                    text : 'E-mail',
+                    value : 'email',
+
+                    // para esconder a coluna, use as duas propriedades abaixo
+                    align: ' d-none', type : 'hidden',
                 }
             ],
             registros: [],
@@ -60,12 +71,24 @@ export default {
             }
         },
         carregarItens() {
-            this.registros = [
-                {
-                    nome: 'Alysson Marques'
-                }
-            ]
-            this.carregandoRegistros = false
+            this.registros = []
+            let url = rotas.get('/auth/usuario/')
+            this.carregandoRegistros = true
+            this.$http.get(url)
+                .then(
+                    response => {
+                        if(Array.isArray(response.body)) {
+                            response.body.forEach(element => {
+                                this.registros.push(element)
+                            });
+                        }
+                        this.carregandoRegistros = false
+                    }, 
+                    error => {
+                        console.log(error)
+                        this.carregandoRegistros = false
+                    }
+                )
         }
     },
     mounted() {
